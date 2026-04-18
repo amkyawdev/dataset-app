@@ -1,4 +1,4 @@
-# 🏛️ Burmese College Dataset Collector
+# 🤖 Chat Bot Dataset Collector
 
 <p align="center">
   <a href="https://github.com/amkyawdev/dataset-app">
@@ -13,9 +13,12 @@
   <a href="https://vercel.com">
     <img src="https://img.shields.io/badge/deployed-on-vercel-black?style=flat&logo=vercel" alt="Deployed on Vercel">
   </a>
+  <a href="https://huggingface.co/spaces">
+    <img src="https://img.shields.io/badge/HuggingFace-Spaces-yellow?style=flat" alt="HuggingFace Spaces">
+  </a>
 </p>
 
-A professional Next.js 14 application for collecting Burmese Myanmar college data with a modern Glassmorphism Dark Theme UI. Built with App Router, TypeScript, and integrated with HuggingFace for dataset management.
+A professional Next.js 14 application for collecting Chat Bot training data with a modern Glassmorphism Dark Theme UI. Collect user prompts, bot responses, and metadata for training conversational AI models.
 
 ---
 
@@ -23,12 +26,14 @@ A professional Next.js 14 application for collecting Burmese Myanmar college dat
 
 | Feature | Description |
 |---------|-------------|
-| **📚 Data Collection** | Collect College Name, Major/Specialization, Entrance Requirements, Location, and Description |
+| **💬 Prompt Collection** | Collect user messages/questions |
+| **🤖 Response Collection** | Record bot responses to prompts |
 | **📊 CSV Format** | Data saved in CSV format and synced with HuggingFace Dataset |
 | **🎨 Glassmorphism UI** | Modern dark theme with glass effect design |
 | **👁️ Real-time Preview** | Live CSV preview as you type |
 | **🔄 HuggingFace Sync** | Direct sync to your HuggingFace dataset repository |
-| **✅ Validation** | Proper Burmese text input handling with loading states |
+| **🌍 Multi-language** | Support for Burmese, English, and Mixed language data |
+| **📁 Category System** | Organize data by conversation type (greeting, question, etc.) |
 
 ---
 
@@ -39,7 +44,7 @@ A professional Next.js 14 application for collecting Burmese Myanmar college dat
 ![Next.js](https://img.shields.io/badge/Next.js-14-000000?style=for-the-badge&logo=next.js&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.4-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-06B6D2?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![Lucide](https://img.shields.io/badge/Lucide_React-latest-ffffff?style=for-the-badge)
+![HuggingFace](https://img.shields.io/badge/HuggingFace-FFD21E?style=for-the-badge&logo=huggingface)
 
 </div>
 
@@ -62,8 +67,6 @@ cd dataset-app
 
 # Install dependencies
 npm install
-# or
-yarn install
 
 # Copy environment file
 cp .env.local .env
@@ -84,7 +87,7 @@ HF_TOKEN=your_huggingface_token_here
 
 # Dataset Repository
 # Format: username/dataset-name
-DATASET_REPO=username/your-dataset-name
+DATASET_REPO=amkyawdev/burme-dataset
 ```
 
 ---
@@ -92,91 +95,80 @@ DATASET_REPO=username/your-dataset-name
 ## 📁 Project Structure
 
 ```
-burmese-college-dataset/
+dataset-app/
 ├── app/
 │   ├── api/
 │   │   └── save-college/
 │   │       └── route.ts          # CSV processing & HF Upload API
 │   ├── components/
-│   │   ├── FormInput.tsx          # Reusable Burmese Input component
-│   │   ├── GlassCard.tsx         # Glassmorphism UI container
-│   │   └── Spinner.tsx           # Loading spinner component
-│   ├── globals.css               # Global styles
-│   ├── layout.tsx               # Root layout
-│   └── page.tsx                 # Main dashboard page
+│   │   ├── FormInput.tsx          # Reusable input component
+│   │   ├── GlassCard.tsx          # Glassmorphism UI container
+│   │   ├── SelectInput.tsx        # Dropdown select component
+│   │   └── Spinner.tsx            # Loading spinner component
+│   ├── docs/
+│   │   └── page.tsx              # Documentation page
+│   ├── globals.css                # Global styles
+│   ├── layout.tsx                 # Root layout
+│   └── page.tsx                   # Main dashboard page
 ├── lib/
-│   └── huggingface.ts            # HuggingFace API configuration
+│   └── huggingface.ts             # HuggingFace API configuration
 ├── types/
-│   └── index.ts                 # TypeScript interfaces
-├── .env.local                   # Environment variables
-├── next.config.js               # Next.js configuration
-└── tailwind.config.ts           # Tailwind CSS configuration
+│   └── index.ts                   # TypeScript interfaces
+├── public/
+│   └── sw.js                      # Service worker for PWA
+├── Dockerfile                     # For HuggingFace Spaces deployment
+├── .dockerignore                  # Docker ignore file
+├── .env.local                     # Environment variables
+├── next.config.js                 # Next.js configuration
+└── tailwind.config.ts             # Tailwind CSS configuration
 ```
 
 ---
 
 ## 📊 Data Schema
 
-The app collects the following fields:
+The app collects the following fields for Chat Bot training:
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `college_name` | string | College name in Burmese or English |
-| `major` | string | Major or specialization |
-| `requirements` | string | Entrance requirements |
-| `location` | string | Location (State/Region) |
-| `description` | string | Additional description |
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `prompt` | string | Yes | User message or question |
+| `response` | string | Yes | Bot's reply to the prompt |
+| `context` | string | No | Additional context or background |
+| `language` | string | Yes | Burmese, English, or Mixed |
+| `category` | string | Yes | Conversation type |
 
-### Common Location Values (States/Regions)
+### Language Options
 
-| State/Region | မြန်မာစာ |
-|-------------|-------------|
-| ရန်းရှားမြို့ | Yangon Region |
-| မန္တလေးမြို့ | Mandalay Region |
-| ပါတော်မူတို့ရာ | Bago Region |
-| မကွေးတိုင်း | Magway Region |
-| မပါတော်မူတို့ရာ | Mawlamyine |
-| ပုဂံ | Bagan |
-| ဟင်္သီမြို့ | Hinthada |
-| ပေါက်ပါးတိုင်း | Paktia |
-| ကယျက်တိုင်း | Kayah State |
-| ချင်းတိုင်း | Chin State |
-| ကရင်ပါးသူပါ | Kayin State |
-| မွန်ပါတော်မူတို့ရာ | Mon State |
-| ရှမ်းပါးသူပါ | Shan State |
-| အောင်ပါးပိုင်း | Rakhine State |
-| ဧရာဝတီတိုင်း | Ayeyarwady |
-
-### Common Major Values
-
-| Major | မြန်မာစာ |
+| Value | Description |
 |-------|-------------|
-| အင်ဂျင်နီယာ | Engineering |
-| ပါးစည်ပါး | Business/Marketing |
-| သတ္တူဗျားအင်ဂျင်နီယာ | Computer Engineering |
-| မှတ်စုသတ္တုဗျား | Computer Science |
-| ဗေဒါန်းဟော်ပါး | Architecture |
-| သတ္တဝါဗေဒါန်း | Agriculture |
-| ပါမောဂျင်နီယာ | Chemical Engineering |
-| လျှပ်စစ်အင်ဂျင်နီယာ | Electrical Engineering |
-| မဂ္ဂါယန်းဟော်ပါး | Education |
-| ဥပစာပါး | Law |
-| ဆေးပါး | Medicine |
-| သူန်းကျမ်း | Nursing |
-| ပါးစည်ပါးစီးပါး | Business Administration |
-| စီးပါးစီရင်ရန် | Management |
-| ပညာရေး | General Education |
+| `Burmese` | Myanmar language (မြန်မာစာ) |
+| `English` | English language |
+| `Mixed` | Mixed Burmese and English |
+
+### Category Options
+
+| Value | Description |
+|-------|-------------|
+| `greeting` | Greeting messages |
+| `question` | Questions and answers |
+| `information` | Information sharing |
+| `instruction` | Instructions and guides |
+| `conversation` | General conversation |
+| `technical` | Technical support |
+| `general` | General topics |
 
 ### Example CSV Entry
 
 ```csv
-college_name,major,requirements,location,description
-"ရန်းရှားကောလိပ်","အင်ဂျင်နီယာ","သင်္ဂါယန်း(၉) အောင်ပါး","ရန်းရှားမြို့","အဆင့်မြင့်ဆွယ်တားကောလိပ် မြန်မာနိုင်ငံ၏ ထမ်းမားဆုံးသော အင်ဂျင်နီယာကောလိပ်ဖြစ်ပပါးရှိပါးသည်။"
+prompt,response,context,language,category
+"Hello","Hi there! How can I help you today?","","English","greeting"
+"မင်္ဂလာပါ","မင်္ဂလာပါ။ ဘာလုပ်ပါသလဲ။","","Burmese","greeting"
+"What is machine learning?","Machine learning is a type of artificial intelligence that allows computers to learn from data without being explicitly programmed.","","English","information"
 ```
 
 ---
 
-### How to Use Dataset
+## 💻 How to Use Dataset
 
 ```python
 from datasets import load_dataset
@@ -189,10 +181,20 @@ train_data = dataset["train"]
 
 # Iterate through examples
 for example in train_data:
-    print(f"College: {example['college_name']}")
-    print(f"Major: {example['major']}")
-    print(f"Location: {example['location']}")
+    print(f"Prompt: {example['prompt']}")
+    print(f"Response: {example['response']}")
+    print(f"Language: {example['language']}")
+    print(f"Category: {example['category']}")
     print("---")
+```
+
+### Loading Specific File
+
+```python
+from datasets import load_dataset
+
+# Load specific CSV file (chatbot.csv)
+dataset = load_dataset("csv", data_files="https://huggingface.co/datasets/amkyawdev/burme-dataset/resolve/main/chatbot.csv")
 ```
 
 ---
@@ -201,16 +203,16 @@ for example in train_data:
 
 ### POST /api/save-college
 
-Save college data to HuggingFace dataset.
+Save chat bot data to HuggingFace dataset.
 
 **Request:**
 ```json
 {
-  "name": "ရန်းရှားကောလိပ်",
-  "major": "အင်ဂျင်နီယာ",
-  "requirements": "သင်္ဂါယန်း(၉) အောင်ပါးရန်",
-  "location": "ရန်းရှားမြို့",
-  "description": "အဆင့်မြင့်ဆွယ်တားအတွက် ကောလိပ်"
+  "prompt": "Hello",
+  "response": "Hi there! How can I help you?",
+  "context": "",
+  "language": "English",
+  "category": "greeting"
 }
 ```
 
@@ -218,7 +220,27 @@ Save college data to HuggingFace dataset.
 ```json
 {
   "success": true,
-  "message": "College data saved successfully"
+  "message": "Chat bot data saved successfully"
+}
+```
+
+### GET /api/save-college
+
+Retrieve current dataset from HuggingFace.
+
+**Response:**
+```json
+{
+  "data": [
+    {
+      "prompt": "Hello",
+      "response": "Hi there!",
+      "context": "",
+      "language": "English",
+      "category": "greeting"
+    }
+  ],
+  "headers": ["prompt", "response", "context", "language", "category"]
 }
 ```
 
@@ -237,7 +259,26 @@ Save college data to HuggingFace dataset.
 
 ### HuggingFace Space
 
-You can also deploy this app to HuggingFace Spaces using Docker.
+Deploy this app to HuggingFace Spaces:
+
+1. Create a new Space at https://huggingface.co/spaces
+2. Select "Docker" as the SDK
+3. Upload the Dockerfile and all project files
+4. Add Environment Variables in Space settings:
+   - `HF_TOKEN` - Your HuggingFace token
+   - `DATASET_REPO` - Your dataset repository
+
+---
+
+## 🔗 Links
+
+| Resource | URL |
+|----------|-----|
+| **Live App (Vercel)** | https://amkyawdev-dataset-app.vercel.app |
+| **Documentation** | https://amkyawdev-dataset-app.vercel.app/docs |
+| **GitHub Repository** | https://github.com/amkyawdev/dataset-app |
+| **HuggingFace Dataset** | https://huggingface.co/datasets/amkyawdev/burme-dataset |
+| **HuggingFace Space** | https://huggingface.co/spaces/amkyawdev/chatbot-dataset-collector |
 
 ---
 
@@ -255,7 +296,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 <div align="center">
 
-**Made with ❤️ for Myanmar Education**
+**Made with ❤️ for AI Development**
 
 <a href="https://github.com/amkyawdev/dataset-app">
   <img src="https://img.shields.io/github/stars/amkyawdev/dataset-app?style=social" alt="Stars">
