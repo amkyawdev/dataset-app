@@ -3,7 +3,7 @@
  * Handles interaction with HuggingFace Hub for dataset management
  */
 
-import type { CollegeFormData } from "@/types";
+import type { ChatBotFormData } from "@/types";
 
 /**
  * Get the dataset repository name from environment
@@ -82,40 +82,40 @@ export async function uploadCSVToHF(
 }
 
 /**
- * Format college data as CSV row
+ * Format chat bot data as CSV row
  */
-export function formatCSVRow(data: CollegeFormData): string {
+export function formatCSVRow(data: ChatBotFormData): string {
   const escapeCSV = (str: string) => {
     const escaped = str.replace(/"/g, '""');
     return `"${escaped}"`;
   };
 
   return [
-    escapeCSV(data.name),
-    escapeCSV(data.major),
-    escapeCSV(data.requirements),
-    escapeCSV(data.location),
-    escapeCSV(data.description),
+    escapeCSV(data.prompt),
+    escapeCSV(data.response),
+    escapeCSV(data.context || ""),
+    escapeCSV(data.language),
+    escapeCSV(data.category),
   ].join(",") + "\n";
 }
 
 /**
- * Create CSV header
+ * Create CSV header for chat bot data
  */
 export function createCSVHeader(): string {
-  return "college_name,major,requirements,location,description\n";
+  return "prompt,response,context,language,category\n";
 }
 
 /**
- * Append single college entry to existing CSV
+ * Append single chat bot entry to existing CSV
  */
 export async function appendCollegeToCSV(
-  data: CollegeFormData,
-  fileName: string = "colleges.csv"
+  data: ChatBotFormData,
+  fileName: string = "chatbot.csv"
 ): Promise<void> {
   let csvContent = await fetchCSVFromHF(fileName);
   
-  if (!csvContent || !csvContent.includes("college_name")) {
+  if (!csvContent || !csvContent.includes("prompt")) {
     csvContent = createCSVHeader();
   }
   

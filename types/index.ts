@@ -1,5 +1,29 @@
 /**
- * College Data Interface
+ * Chat Bot Training Data Interface
+ */
+export interface ChatBotData {
+  id: string;
+  prompt: string;
+  response: string;
+  context: string;
+  language: string;
+  category: string;
+  createdAt: string;
+}
+
+/**
+ * Form Data Interface for Chat Bot Data
+ */
+export interface ChatBotFormData {
+  prompt: string;
+  response: string;
+  context: string;
+  language: string;
+  category: string;
+}
+
+/**
+ * College Data Interface (Legacy)
  */
 export interface College {
   id: string;
@@ -12,7 +36,7 @@ export interface College {
 }
 
 /**
- * Form Data Interface
+ * Form Data Interface (Legacy)
  */
 export interface CollegeFormData {
   name: string;
@@ -33,7 +57,18 @@ export interface ApiResponse<T = unknown> {
 }
 
 /**
- * CSV Row Interface
+ * CSV Row Interface for Chat Bot
+ */
+export interface ChatBotCSVRow {
+  prompt: string;
+  response: string;
+  context: string;
+  language: string;
+  category: string;
+}
+
+/**
+ * CSV Row Interface (Legacy)
  */
 export interface CSVRow {
   college_name: string;
