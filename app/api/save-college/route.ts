@@ -5,32 +5,32 @@
 
 import { NextResponse } from "next/server";
 import { appendCollegeToCSV, fetchCSVFromHF, formatCSVRow, createCSVHeader } from "@/lib/huggingface";
-import type { CollegeFormData } from "@/types";
+import type { ChatBotFormData } from "@/types";
 
 export async function POST(req: Request) {
   try {
     const data = await req.json();
-    const { name, major, requirements, location, description } = data;
+    const { prompt, response, context, language, category } = data;
 
     // Validate required fields
-    if (!name || !major || !requirements || !location || !description) {
+    if (!prompt || !response || !language || !category) {
       return NextResponse.json({ error: "All fields are required" }, { status: 400 });
     }
 
-    await appendCollegeToCSV({ name, major, requirements, location, description } as CollegeFormData, "colleges.csv");
+    await appendCollegeToCSV({ prompt, response, context, language, category } as ChatBotFormData, "chatbot.csv");
     
-    return NextResponse.json({ success: true, message: "College data saved successfully" });
+    return NextResponse.json({ success: true, message: "Chat bot data saved successfully" });
     
   } catch (error: unknown) {
-    console.error("Error saving college data:", error);
-    const errorMessage = error instanceof Error ? error.message : "Failed to save college data";
+    console.error("Error saving chat bot data:", error);
+    const errorMessage = error instanceof Error ? error.message : "Failed to save data";
     return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
 
 export async function GET() {
   try {
-    const csvContent = await fetchCSVFromHF("colleges.csv");
+    const csvContent = await fetchCSVFromHF("chatbot.csv");
     
     if (!csvContent) {
       return NextResponse.json({ data: [], headers: [] });

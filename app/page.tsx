@@ -1,94 +1,75 @@
 "use client";
 
 import { useState } from "react";
-import { GraduationCap, MapPin, BookOpen, FileText, Save, Upload, AlertCircle, CheckCircle2, Database, BookMarked } from "lucide-react";
+import { MessageCircle, Bot, FileText, Send, Upload, AlertCircle, CheckCircle2, BookMarked, Sparkles, ExternalLink, Globe, Tags } from "lucide-react";
 import { GlassCard } from "./components/GlassCard";
 import { FormInput } from "./components/FormInput";
 import { SelectInput } from "./components/SelectInput";
 import { Spinner } from "./components/Spinner";
-import type { CollegeFormData } from "@/types";
+import type { ChatBotFormData } from "@/types";
 import Link from "next/link";
 
-interface FormData extends CollegeFormData {}
+interface FormData extends ChatBotFormData {}
 
 interface PreviewData {
-  name: string;
-  major: string;
-  requirements: string;
-  location: string;
-  description: string;
+  prompt: string;
+  response: string;
+  context: string;
+  language: string;
+  category: string;
 }
 
-// Myanmar States/Regions
-const LOCATION_OPTIONS = [
-  { value: "ရန်းရှားမြို့", label: "ရန်းရှားမြို့ (Yangon)" },
-  { value: "မန္တလေးမြို့", label: "မန္တလေးမြို့ (Mandalay)" },
-  { value: "ပါတော်မူတို့ရာ", label: "ပါတော်မူတို့ရာ (Bago)" },
-  { value: "မကွေးတိုင်း", label: "မကွေးတိုင်း (Magway)" },
-  { value: "မပါတော်မူတို့ရာ", label: "မပါတော်မူတို့ရာ (Mawlamyine)" },
-  { value: "ပုဂံ", label: "ပုဂံ (Bagan)" },
-  { value: "ဟင်္သီမြို့", label: "ဟင်္သီမြို့ (Hinthada)" },
-  { value: "ပေါက်ပါးတိုင်း", label: "ပေါက်ပါးတိုင်း" },
-  { value: "ယူပန်း", label: "ယူပန်း (Taungoo)" },
-  { value: "မိတ်ကျုမ်း", label: "မိတ်ကျုမ်း" },
-  { value: "ဆော့ပလိတ်", label: "ဆော့ပလိတ်" },
+// Language Options
+const LANGUAGE_OPTIONS = [
+  { value: "Burmese", label: "Burmese (မြန်မာစာ)" },
+  { value: "English", label: "English" },
+  { value: "Mixed", label: "Mixed (Burmese + English)" },
 ];
 
-// Common Majors/Specializations
-const MAJOR_OPTIONS = [
-  { value: "အင်ဂျင်နီယာ", label: "အင်ဂျင်နီယာ (Engineering)" },
-  { value: "ပါးစည်ပါး", label: "ပါးစည်ပါး (Business)" },
-  { value: "သတ္တူဗျားအင်ဂျင်နီယာ", label: "သတ္တူဗျားအင်ဂျင်နီယာ (Computer Engineering)" },
-  { value: "မှတ်စုသတ္တုဗျား", label: "မှတ်စုသတ္တုဗျား (Computer Science)" },
-  { value: "ဗေဒါန်းဟော်ပါး", label: "ဗေဒါန်းဟော်ပါး (Architecture)" },
-  { value: "သတ္တဝါဗေဒါန်း", label: "သတ္တဝါဗေဒါန်း (Agriculture)" },
-  { value: "ပါမောဂျင်နီယာ", label: "ပါမောဂျင်နီယာ (Chemical Engineering)" },
-  { value: "လျှပ်စစ်အင်ဂျင်နီယာ", label: "လျှပ်စစ်အင်ဂျင်နီယာ (Electrical)" },
-  { value: "မဂ္ဂါယန်းဟော်ပါး", label: "မဂ္ဂါယန်းဟော်ပါး (Education)" },
-  { value: "ဥပစာပါး", label: "ဥပစာပါး (Law)" },
-  { value: "ဆေးပါး", label: "ဆေးပါး (Medicine)" },
-  { value: "သူန်းကျမ်း", label: "သူန်းကျမ်း (Nursing)" },
-  { value: "ပါးစည်ပါးစီးပါး", label: "ပါးစည်ပါးစီးပါး (Business Admin)" },
-  { value: "စီးပါးစီရင်ရန်", label: "စီးပါးစီရင်ရန် (Management)" },
-  { value: "ပညာရေး", label: "ပညာရေး (General Education)" },
-  { value: "သတ္တဝါပညာ", label: "သတ္တဝါပညာ (Veterinary)" },
-  { value: "ပမာဏဝတ်ယူပါး", label: "ပမာဏဝတ်ယူပါး (Pharmacy)" },
-  { value: "သင်္ဂျာယန်း", label: "သင်္ဂျာယန်း (Civil Engineering)" },
+// Category Options
+const CATEGORY_OPTIONS = [
+  { value: "greeting", label: "Greeting" },
+  { value: "question", label: "Question" },
+  { value: "information", label: "Information" },
+  { value: "instruction", label: "Instruction" },
+  { value: "conversation", label: "Conversation" },
+  { value: "technical", label: "Technical Support" },
+  { value: "general", label: "General" },
 ];
 
 export default function Home() {
   const [formData, setFormData] = useState<FormData>({
-    name: "",
-    major: "",
-    requirements: "",
-    location: "",
-    description: "",
+    prompt: "",
+    response: "",
+    context: "",
+    language: "Burmese",
+    category: "general",
   });
-  
+
   const [previewData, setPreviewData] = useState<PreviewData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    
+
     const newData = { ...formData, [field]: value };
     const hasContent = Object.values(newData).some((v) => v.trim().length > 0);
-    
+
     if (hasContent) {
       setPreviewData(newData as PreviewData);
     } else {
       setPreviewData(null);
     }
-    
+
     setMessage(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!formData.name || !formData.major || !formData.requirements || !formData.location || !formData.description) {
-      setMessage({ type: "error", text: "Please fill in all fields" });
+
+    if (!formData.prompt || !formData.response || !formData.language || !formData.category) {
+      setMessage({ type: "error", text: "Please fill in all required fields" });
       return;
     }
 
@@ -105,8 +86,8 @@ export default function Home() {
       const result = await response.json();
 
       if (result.success) {
-        setMessage({ type: "success", text: "College data saved successfully!" });
-        setFormData({ name: "", major: "", requirements: "", location: "", description: "" });
+        setMessage({ type: "success", text: "Chat bot data saved successfully!" });
+        setFormData({ prompt: "", response: "", context: "", language: "Burmese", category: "general" });
         setPreviewData(null);
       } else {
         setMessage({ type: "error", text: result.error || "Failed to save data" });
@@ -119,99 +100,194 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen p-4 md:p-8">
+    <main className="min-h-screen p-4 md:p-8 relative overflow-x-hidden">
+      {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800" />
+        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 right-10 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-radial from-blue-600/5 to-transparent rounded-full" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:60px_60px]" />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto">
-        <header className="mb-8 text-center">
-          <div className="inline-flex items-center justify-center p-3 mb-4 rounded-2xl bg-white/10 backdrop-blur-lg border border-white/20">
-            <Database className="w-8 h-8 text-blue-400" />
+        {/* Header */}
+        <header className="mb-10 text-center">
+          <div className="inline-flex items-center gap-2 mb-5 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 backdrop-blur-sm">
+            <Sparkles className="w-4 h-4 text-blue-400" />
+            <span className="text-blue-400 text-sm font-medium">Chat Bot Training Data Collector</span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Burmese College Dataset</h1>
-          <p className="text-white/60 max-w-xl mx-auto">Collect and manage Myanmar college data with real-time CSV preview</p>
-          <Link href="/docs" className="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 transition-colors">
-            <BookMarked className="w-4 h-4" />
-            <span>Docs ကြည့်ပါ</span>
-          </Link>
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">
+            Chat Bot <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Dataset</span>
+          </h1>
+          <p className="text-white/60 text-lg max-w-2xl mx-auto mb-6">
+            Collect and manage conversation data for AI model training with real-time CSV preview
+          </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Link href="/docs" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 transition-all duration-300 text-white/80 hover:text-white backdrop-blur-sm">
+              <BookMarked className="w-4 h-4" />
+              <span>Docs</span>
+            </Link>
+            <a href="https://huggingface.co/datasets/amkyawdev/burme-dataset" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/20 transition-all duration-300 text-purple-300 hover:text-purple-200">
+              <Bot className="w-4 h-4" />
+              <span>HuggingFace</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <GlassCard className="p-6" title="Add New College">
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <FormInput label="College Name" placeholder="ကောလိပ်အမည်" value={formData.name} onChange={(v) => handleInputChange("name", v)} required icon={<GraduationCap className="w-5 h-5" />} />
-              
-              <SelectInput label="Major/Specialization" value={formData.major} onChange={(v) => handleInputChange("major", v)} options={MAJOR_OPTIONS} required icon={<BookOpen className="w-5 h-5" />} placeholder="မေဂျာ ရွေးပါ..." />
-              
-              <FormInput label="Entrance Requirements" placeholder="ဝင်ခွင့်အခြေအနေ" value={formData.requirements} onChange={(v) => handleInputChange("requirements", v)} required icon={<FileText className="w-5 h-5" />} />
-              
-              <SelectInput label="Location" value={formData.location} onChange={(v) => handleInputChange("location", v)} options={LOCATION_OPTIONS} required icon={<MapPin className="w-5 h-5" />} placeholder="တည်နေရာ ရွေးပါ..." />
-              
-              <FormInput label="Description" placeholder="ဖေါ်ပါးချက်" value={formData.description} onChange={(v) => handleInputChange("description", v)} required rows={4} />
+        {/* Main Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+          {/* Form Card */}
+          <div className="transition-transform duration-300 hover:scale-[1.01]">
+            <GlassCard className="p-6 md:p-8" title="Add Chat Data">
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <FormInput
+                  label="Prompt (User Message)"
+                  placeholder="Enter user message or question"
+                  value={formData.prompt}
+                  onChange={(v) => handleInputChange("prompt", v)}
+                  required
+                  icon={<MessageCircle className="w-5 h-5" />}
+                  rows={3}
+                />
 
-              {message && (
-                <div className={`flex items-center gap-2 p-4 rounded-xl ${message.type === "success" ? "bg-green-500/20 border border-green-500/30" : "bg-red-500/20 border border-red-500/30"}`}>
-                  {message.type === "success" ? <CheckCircle2 className="w-5 h-5 text-green-400" /> : <AlertCircle className="w-5 h-5 text-red-400" />}
-                  <span className={`text-sm ${message.type === "success" ? "text-green-300" : "text-red-300"}`}>{message.text}</span>
-                </div>
-              )}
+                <FormInput
+                  label="Response (Bot Reply)"
+                  placeholder="Enter bot's response"
+                  value={formData.response}
+                  onChange={(v) => handleInputChange("response", v)}
+                  required
+                  icon={<Bot className="w-5 h-5" />}
+                  rows={4}
+                />
 
-              <button type="submit" disabled={isLoading} className="w-full py-4 px-6 rounded-xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white shadow-lg shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2">
-                {isLoading ? (<><Spinner size="sm" /><span>Saving...</span></>) : (<><Save className="w-5 h-5" /><span>Save to Dataset</span></>)}
-              </button>
-            </form>
-          </GlassCard>
+                <FormInput
+                  label="Context (Optional)"
+                  placeholder="Additional context or background information"
+                  value={formData.context}
+                  onChange={(v) => handleInputChange("context", v)}
+                  icon={<FileText className="w-5 h-5" />}
+                  rows={2}
+                />
 
-          <GlassCard className="p-6" title="CSV Preview">
-            <div className="space-y-4">
-              {previewData ? (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-white/60 text-sm mb-4">
-                    <Upload className="w-4 h-4" />
-                    <span>Real-time Preview</span>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-xl p-4 font-mono text-sm overflow-x-auto">
-                    <div className="text-blue-400 mb-2">college_name,major,requirements,location,description</div>
-                    <div className="text-white/80 break-all">"{previewData.name}","{previewData.major}","{previewData.requirements}","{previewData.location}","{previewData.description}"</div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 mt-4">
-                    <div className="bg-white/5 rounded-lg p-3"><div className="text-white/40 text-xs mb-1">College Name</div><div className="text-white text-sm truncate">{previewData.name || "-"}</div></div>
-                    <div className="bg-white/5 rounded-lg p-3"><div className="text-white/40 text-xs mb-1">Major</div><div className="text-white text-sm truncate">{previewData.major || "-"}</div></div>
-                    <div className="bg-white/5 rounded-lg p-3"><div className="text-white/40 text-xs mb-1">Location</div><div className="text-white text-sm truncate">{previewData.location || "-"}</div></div>
-                    <div className="bg-white/5 rounded-lg p-3"><div className="text-white/40 text-xs mb-1">Requirements</div><div className="text-white text-sm truncate">{previewData.requirements || "-"}</div></div>
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <SelectInput
+                    label="Language"
+                    value={formData.language}
+                    onChange={(v) => handleInputChange("language", v)}
+                    options={LANGUAGE_OPTIONS}
+                    required
+                    icon={<Globe className="w-5 h-5" />}
+                  />
+                  <SelectInput
+                    label="Category"
+                    value={formData.category}
+                    onChange={(v) => handleInputChange("category", v)}
+                    options={CATEGORY_OPTIONS}
+                    required
+                    icon={<Tags className="w-5 h-5" />}
+                  />
                 </div>
-              ) : (
-                <div className="text-center py-12 text-white/40">
-                  <Upload className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p>Start typing to see CSV preview</p>
-                </div>
-              )}
-            </div>
-          </GlassCard>
+
+                {message && (
+                  <div className={`flex items-center gap-3 p-4 rounded-xl ${message.type === "success" ? "bg-green-500/20 border border-green-500/30" : "bg-red-500/20 border border-red-500/30"}`}>
+                    {message.type === "success" ? <CheckCircle2 className="w-5 h-5 text-green-400" /> : <AlertCircle className="w-5 h-5 text-red-400" />}
+                    <span className={message.type === "success" ? "text-green-300" : "text-red-300"}>{message.text}</span>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full flex items-center justify-center gap-3 py-4 px-6 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? <><Spinner size="sm" /><span>Saving to Dataset...</span></> : <><Send className="w-5 h-5" /><span>Save to HuggingFace</span></>}
+                </button>
+              </form>
+            </GlassCard>
+          </div>
+
+          {/* Preview Card */}
+          <div className="transition-transform duration-300 hover:scale-[1.01]">
+            <GlassCard className="p-6 md:p-8" title="CSV Preview">
+              <div className="space-y-4">
+                {previewData ? (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 text-white/50 text-sm">
+                      <Upload className="w-4 h-4" />
+                      <span>Real-time Preview</span>
+                    </div>
+                    <div className="bg-slate-900/50 rounded-xl p-4 font-mono text-sm overflow-x-auto border border-slate-700/50">
+                      <div className="text-blue-400 mb-2">prompt,response,context,language,category</div>
+                      <div className="text-white/80 break-all leading-relaxed whitespace-pre-wrap">"{previewData.prompt}","{previewData.response}","{previewData.context}","{previewData.language}","{previewData.category}"</div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-white/5 rounded-lg p-3 border border-white/5">
+                        <div className="text-white/40 text-xs mb-1">Prompt</div>
+                        <div className="text-white text-sm truncate">{previewData.prompt || "-"}</div>
+                      </div>
+                      <div className="bg-white/5 rounded-lg p-3 border border-white/5">
+                        <div className="text-white/40 text-xs mb-1">Response</div>
+                        <div className="text-white text-sm truncate">{previewData.response || "-"}</div>
+                      </div>
+                      <div className="bg-white/5 rounded-lg p-3 border border-white/5">
+                        <div className="text-white/40 text-xs mb-1">Language</div>
+                        <div className="text-white text-sm truncate">{previewData.language || "-"}</div>
+                      </div>
+                      <div className="bg-white/5 rounded-lg p-3 border border-white/5">
+                        <div className="text-white/40 text-xs mb-1">Category</div>
+                        <div className="text-white text-sm truncate">{previewData.category || "-"}</div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-16 text-white/40">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white/5 flex items-center justify-center">
+                      <Upload className="w-8 h-8 opacity-50" />
+                    </div>
+                    <p className="text-lg">Start typing to see CSV preview</p>
+                    <p className="text-sm mt-2 opacity-60">Your data will be formatted for ML training</p>
+                  </div>
+                )}
+              </div>
+            </GlassCard>
+          </div>
         </div>
 
+        {/* Info Cards */}
         <GlassCard className="mt-6 p-6">
-          <div className="flex flex-col md:flex-row gap-6 items-start">
-            <div className="flex-1">
-              <h3 className="text-lg font-semibold text-white mb-2">How It Works</h3>
-              <ul className="space-y-2 text-white/60 text-sm">
-                <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-2" />Fill in the college information in Burmese or English</li>
-                <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full bg-purple-400 mt-2" />Real-time CSV preview shows how data will be formatted</li>
-                <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full bg-green-400 mt-2" />Submit to save directly to your HuggingFace dataset</li>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-3">How It Works</h3>
+              <ul className="space-y-3 text-white/60 text-sm">
+                <li className="flex items-start gap-3">
+                  <span className="w-2 h-2 rounded-full bg-blue-400 mt-1.5" />
+                  Enter the user's prompt or question
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="w-2 h-2 rounded-full bg-purple-400 mt-1.5" />
+                  Write the bot's response to that prompt
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="w-2 h-2 rounded-full bg-green-400 mt-1.5" />
+                  Select language and category, then submit
+                </li>
               </ul>
             </div>
-            <div className="flex-1">
-              <h3 className="text-lg font-semibold text-white mb-2">Environment Variables</h3>
-              <div className="bg-slate-800/50 rounded-xl p-4 font-mono text-sm space-y-2">
-                <div className="text-white/40">HF_TOKEN = (configured)</div>
-                <div className="text-white/40">DATASET_REPO = amkyawdev/burme-dataset</div>
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-3">Data Schema</h3>
+              <div className="bg-slate-800/50 rounded-xl p-4 font-mono text-sm space-y-1 border border-slate-700/30 overflow-x-auto">
+                <div className="text-blue-400">prompt,response,context,language,category</div>
+                <div className="text-white/40">"Hello","Hi there!","greeting","English","greeting"</div>
               </div>
             </div>
           </div>
         </GlassCard>
+
+        <footer className="mt-8 text-center text-white/30 text-sm">
+          <p>Powered by Next.js • Tailwind CSS • HuggingFace</p>
+        </footer>
       </div>
     </main>
   );
