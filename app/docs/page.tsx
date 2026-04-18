@@ -46,7 +46,7 @@ export default function Docs() {
               </tbody>
             </table>
           </div>
-          <div className="bg-slate-800/50 rounded-xl p-4 font-mono text-sm text-white/70">
+          <div className="bg-slate-800/50 rounded-xl p-4 font-mono text-sm text-white/70 overflow-x-auto">
             college_name,major,requirements,location,description<br/>
             "ရန်းရှားကောလိပ်","အင်ဂျင်နီယာ","သင်္ဂါယန်း(၉)","ရန်းရှားမြို့","..."
           </div>
