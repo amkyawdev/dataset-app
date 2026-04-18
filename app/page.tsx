@@ -4,8 +4,10 @@ import { useState } from "react";
 import { GraduationCap, MapPin, BookOpen, FileText, Save, Upload, AlertCircle, CheckCircle2, Database, BookMarked } from "lucide-react";
 import { GlassCard } from "./components/GlassCard";
 import { FormInput } from "./components/FormInput";
+import { SelectInput } from "./components/SelectInput";
 import { Spinner } from "./components/Spinner";
 import type { CollegeFormData } from "@/types";
+import Link from "next/link";
 
 interface FormData extends CollegeFormData {}
 
@@ -17,7 +19,42 @@ interface PreviewData {
   description: string;
 }
 
-import Link from "next/link";
+// Myanmar States/Regions
+const LOCATION_OPTIONS = [
+  { value: "ရန်းရှားမြို့", label: "ရန်းရှားမြို့ (Yangon)" },
+  { value: "မန္တလေးမြို့", label: "မန္တလေးမြို့ (Mandalay)" },
+  { value: "ပါတော်မူတို့ရာ", label: "ပါတော်မူတို့ရာ (Bago)" },
+  { value: "မကွေးတိုင်း", label: "မကွေးတိုင်း (Magway)" },
+  { value: "မပါတော်မူတို့ရာ", label: "မပါတော်မူတို့ရာ (Mawlamyine)" },
+  { value: "ပုဂံ", label: "ပုဂံ (Bagan)" },
+  { value: "ဟင်္သီမြို့", label: "ဟင်္သီမြို့ (Hinthada)" },
+  { value: "ပေါက်ပါးတိုင်း", label: "ပေါက်ပါးတိုင်း" },
+  { value: "ယူပန်း", label: "ယူပန်း (Taungoo)" },
+  { value: "မိတ်ကျုမ်း", label: "မိတ်ကျုမ်း" },
+  { value: "ဆော့ပလိတ်", label: "ဆော့ပလိတ်" },
+];
+
+// Common Majors/Specializations
+const MAJOR_OPTIONS = [
+  { value: "အင်ဂျင်နီယာ", label: "အင်ဂျင်နီယာ (Engineering)" },
+  { value: "ပါးစည်ပါး", label: "ပါးစည်ပါး (Business)" },
+  { value: "သတ္တူဗျားအင်ဂျင်နီယာ", label: "သတ္တူဗျားအင်ဂျင်နီယာ (Computer Engineering)" },
+  { value: "မှတ်စုသတ္တုဗျား", label: "မှတ်စုသတ္တုဗျား (Computer Science)" },
+  { value: "ဗေဒါန်းဟော်ပါး", label: "ဗေဒါန်းဟော်ပါး (Architecture)" },
+  { value: "သတ္တဝါဗေဒါန်း", label: "သတ္တဝါဗေဒါန်း (Agriculture)" },
+  { value: "ပါမောဂျင်နီယာ", label: "ပါမောဂျင်နီယာ (Chemical Engineering)" },
+  { value: "လျှပ်စစ်အင်ဂျင်နီယာ", label: "လျှပ်စစ်အင်ဂျင်နီယာ (Electrical)" },
+  { value: "မဂ္ဂါယန်းဟော်ပါး", label: "မဂ္ဂါယန်းဟော်ပါး (Education)" },
+  { value: "ဥပစာပါး", label: "ဥပစာပါး (Law)" },
+  { value: "ဆေးပါး", label: "ဆေးပါး (Medicine)" },
+  { value: "သူန်းကျမ်း", label: "သူန်းကျမ်း (Nursing)" },
+  { value: "ပါးစည်ပါးစီးပါး", label: "ပါးစည်ပါးစီးပါး (Business Admin)" },
+  { value: "စီးပါးစီရင်ရန်", label: "စီးပါးစီရင်ရန် (Management)" },
+  { value: "ပညာရေး", label: "ပညာရေး (General Education)" },
+  { value: "သတ္တဝါပညာ", label: "သတ္တဝါပညာ (Veterinary)" },
+  { value: "ပမာဏဝတ်ယူပါး", label: "ပမာဏဝတ်ယူပါး (Pharmacy)" },
+  { value: "သင်္ဂျာယန်း", label: "သင်္ဂျာယန်း (Civil Engineering)" },
+];
 
 export default function Home() {
   const [formData, setFormData] = useState<FormData>({
@@ -105,9 +142,13 @@ export default function Home() {
           <GlassCard className="p-6" title="Add New College">
             <form onSubmit={handleSubmit} className="space-y-5">
               <FormInput label="College Name" placeholder="ကောလိပ်အမည်" value={formData.name} onChange={(v) => handleInputChange("name", v)} required icon={<GraduationCap className="w-5 h-5" />} />
-              <FormInput label="Major/Specialization" placeholder="မေဂျာအမည်" value={formData.major} onChange={(v) => handleInputChange("major", v)} required icon={<BookOpen className="w-5 h-5" />} />
+              
+              <SelectInput label="Major/Specialization" value={formData.major} onChange={(v) => handleInputChange("major", v)} options={MAJOR_OPTIONS} required icon={<BookOpen className="w-5 h-5" />} placeholder="မေဂျာ ရွေးပါ..." />
+              
               <FormInput label="Entrance Requirements" placeholder="ဝင်ခွင့်အခြေအနေ" value={formData.requirements} onChange={(v) => handleInputChange("requirements", v)} required icon={<FileText className="w-5 h-5" />} />
-              <FormInput label="Location" placeholder="တည်နေရာ" value={formData.location} onChange={(v) => handleInputChange("location", v)} required icon={<MapPin className="w-5 h-5" />} />
+              
+              <SelectInput label="Location" value={formData.location} onChange={(v) => handleInputChange("location", v)} options={LOCATION_OPTIONS} required icon={<MapPin className="w-5 h-5" />} placeholder="တည်နေရာ ရွေးပါ..." />
+              
               <FormInput label="Description" placeholder="ဖေါ်ပါးချက်" value={formData.description} onChange={(v) => handleInputChange("description", v)} required rows={4} />
 
               {message && (
