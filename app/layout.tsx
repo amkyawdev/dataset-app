@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Token Stream Dataset Collector",
-  description: "Build high-quality training data for Burmese LLM fine-tuning",
+  title: "Burmese College Dataset Collector",
+  description: "Collect Burmese Myanmar college data with glassmorphism UI",
+  manifest: "/manifest.json",
+  themeColor: "#0f172a",
 };
 
 export default function RootLayout({
