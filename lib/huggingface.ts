@@ -52,16 +52,27 @@ export async function uploadCSVToHF(
   const repo = getDatasetRepo();
   const token = getHfToken();
   
-  // Using HF API to upload file
-  const apiUrl = `https://huggingface.co/api/datasets/${repo}/upload/main/${fileName}`;
+  // Use the HF Hub API for upload
+  const apiUrl = `https://huggingface.co/datasets/${repo}/commit/main`;
+  
+  const payload = {
+    operations: [
+      {
+        op: "update",
+        path: fileName,
+        content: content,
+        encoding: "utf-8"
+      }
+    ]
+  };
   
   const response = await fetch(apiUrl, {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${token}`,
-      "Content-Type": "text/csv",
+      "Content-Type": "application/json",
     },
-    body: content,
+    body: JSON.stringify(payload),
   });
   
   if (!response.ok) {
