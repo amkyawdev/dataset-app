@@ -124,8 +124,76 @@ The app collects the following fields:
 | `college_name` | string | College name in Burmese or English |
 | `major` | string | Major or specialization |
 | `requirements` | string | Entrance requirements |
-| `location` | string | Location (city, state) |
+| `location` | string | Location (State/Region) |
 | `description` | string | Additional description |
+
+### Common Location Values (States/Regions)
+
+| State/Region | မြန်မာစာ |
+|-------------|-------------|
+| ရန်းရှားမြို့ | Yangon Region |
+| မန္တလေးမြို့ | Mandalay Region |
+| ပါတော်မူတို့ရာ | Bago Region |
+| မကွေးတိုင်း | Magway Region |
+| မပါတော်မူတို့ရာ | Mawlamyine |
+| ပုဂံ | Bagan |
+| ဟင်္သီမြို့ | Hinthada |
+| ပေါက်ပါးတိုင်း | Paktia |
+| ကယျက်တိုင်း | Kayah State |
+| ချင်းတိုင်း | Chin State |
+| ကရင်ပါးသူပါ | Kayin State |
+| မွန်ပါတော်မူတို့ရာ | Mon State |
+| ရှမ်းပါးသူပါ | Shan State |
+| အောင်ပါးပိုင်း | Rakhine State |
+| ဧရာဝတီတိုင်း | Ayeyarwady |
+
+### Common Major Values
+
+| Major | မြန်မာစာ |
+|-------|-------------|
+| အင်ဂျင်နီယာ | Engineering |
+| ပါးစည်ပါး | Business/Marketing |
+| သတ္တူဗျားအင်ဂျင်နီယာ | Computer Engineering |
+| မှတ်စုသတ္တုဗျား | Computer Science |
+| ဗေဒါန်းဟော်ပါး | Architecture |
+| သတ္တဝါဗေဒါန်း | Agriculture |
+| ပါမောဂျင်နီယာ | Chemical Engineering |
+| လျှပ်စစ်အင်ဂျင်နီယာ | Electrical Engineering |
+| မဂ္ဂါယန်းဟော်ပါး | Education |
+| ဥပစာပါး | Law |
+| ဆေးပါး | Medicine |
+| သူန်းကျမ်း | Nursing |
+| ပါးစည်ပါးစီးပါး | Business Administration |
+| စီးပါးစီရင်ရန် | Management |
+| ပညာရေး | General Education |
+
+### Example CSV Entry
+
+```csv
+college_name,major,requirements,location,description
+"ရန်းရှားကောလိပ်","အင်ဂျင်နီယာ","သင်္ဂါယန်း(၉) အောင်ပါး","ရန်းရှားမြို့","အဆင့်မြင့်ဆွယ်တားကောလိပ် မြန်မာနိုင်ငံ၏ ထမ်းမားဆုံးသော အင်ဂျင်နီယာကောလိပ်ဖြစ်ပပါးရှိပါးသည်။"
+```
+
+---
+
+### How to Use Dataset
+
+```python
+from datasets import load_dataset
+
+# Load the dataset
+dataset = load_dataset("amkyawdev/burme-dataset")
+
+# Access training data
+train_data = dataset["train"]
+
+# Iterate through examples
+for example in train_data:
+    print(f"College: {example['college_name']}")
+    print(f"Major: {example['major']}")
+    print(f"Location: {example['location']}")
+    print("---")
+```
 
 ---
 
