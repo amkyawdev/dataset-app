@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { GraduationCap, MapPin, BookOpen, FileText, Save, Upload, AlertCircle, CheckCircle2, Database } from "lucide-react";
+import { GraduationCap, MapPin, BookOpen, FileText, Save, Upload, AlertCircle, CheckCircle2, Database, BookMarked } from "lucide-react";
 import { GlassCard } from "./components/GlassCard";
 import { FormInput } from "./components/FormInput";
 import { Spinner } from "./components/Spinner";
@@ -16,6 +16,8 @@ interface PreviewData {
   location: string;
   description: string;
 }
+
+import Link from "next/link";
 
 export default function Home() {
   const [formData, setFormData] = useState<FormData>({
@@ -93,6 +95,10 @@ export default function Home() {
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Burmese College Dataset</h1>
           <p className="text-white/60 max-w-xl mx-auto">Collect and manage Myanmar college data with real-time CSV preview</p>
+          <Link href="/docs" className="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 transition-colors">
+            <BookMarked className="w-4 h-4" />
+            <span>Docs ကြည့်ပါ</span>
+          </Link>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
